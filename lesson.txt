@@ -1,0 +1,129 @@
+# Heart Rate Variability (HRV) Analysis: A Comprehensive Guide
+
+## Introduction to HRV
+
+Heart Rate Variability (HRV) represents the variation in time intervals between consecutive heartbeats, measured in milliseconds (ms). Unlike heart rate, which is expressed as beats per minute, HRV focuses on the subtle variations between individual heartbeats. These variations provide valuable insights into autonomic nervous system function and overall physiological stress.
+
+## Understanding the HRV Data
+
+The data in HRV_dummy_data.txt contains sequential RR intervals measured in milliseconds. Each value represents the time between consecutive heartbeats:
+
+- Typical adult resting RR intervals range between 750-1000 ms (corresponding to 60-80 beats per minute)
+- Higher numbers indicate longer intervals between beats (slower heart rate)
+- Lower numbers indicate shorter intervals (faster heart rate)
+
+## Improved Data Cleaning Algorithm
+
+The original data cleaning method used a simple threshold approach that risked removing too many valid data points. Our improved algorithm introduces:
+
+### 1. Adaptive Thresholding
+Instead of fixed thresholds (previously 0.85-1.15), the new algorithm uses:
+- Rolling statistics to adjust for local variations in heart rate
+- Z-score based outlier detection that accounts for the statistical distribution of the data
+- Different preservation modes based on cleaning requirements
+
+### 2. Multiple Cleaning Modes
+Three cleaning modes with different preservation characteristics:
+- **Conservative**: Preserves 70-130% range of local median, only removes extreme outliers (Z-score > 3.5)
+- **Balanced**: Moderate approach with 80-120% range, standard Z-score threshold (3.0)
+- **Aggressive**: Stricter 90-110% range, lower Z-score threshold (2.5)
+
+### 3. Graduated Correction
+Rather than simply replacing all outliers with the median value:
+- Extreme outliers are replaced with the median filtered value
+- Moderate outliers are adjusted to the threshold boundary, preserving more of the original signal characteristics
+
+## Key HRV Metrics Calculated
+
+### Time Domain Metrics
+1. **Mean RR**: Average interval between heartbeats (ms)
+2. **Mean HR**: Average heart rate in beats per minute (bpm), calculated as 60000/Mean RR
+3. **SDNN**: Standard deviation of all RR intervals, reflects overall HRV (ms)
+4. **RMSSD**: Root Mean Square of Successive Differences, reflects parasympathetic activity (ms)
+5. **pNN50**: Percentage of successive RR intervals that differ by more than 50ms, indicates parasympathetic activity
+
+### Visualization Tools
+1. **RR Interval Plot**: Shows raw vs cleaned data, highlighting where corrections were made
+2. **Heart Rate Plot**: Displays heart rate in beats per minute derived from RR intervals
+3. **Heart Rate Distribution**: Histogram showing the distribution of heart rates
+4. **Poincaré Plots**: Graphical representation where each RR interval is plotted against the next interval
+   - Shape and dispersion reveal different aspects of autonomic function
+   - Blue points represent normal variations
+   - Red points highlight potentially problematic intervals (>150ms difference)
+5. **RR Difference Histogram**: Distribution of differences between adjacent RR intervals
+6. **Running RMSSD**: Shows how HRV changes over time (using 5-minute windows)
+
+## How The Cleaning Algorithm Works
+
+1. **Data Input**: Raw RR intervals from the file
+2. **Initial Analysis**:
+   - Basic statistics are calculated (total time, heart rate, problematic intervals, etc.)
+   - Z-score based outlier detection identifies potential anomalies
+3. **Adaptive Cleaning**:
+   - Calculates rolling mean and standard deviation with appropriate window size
+   - Sets threshold boundaries based on the cleaning mode
+   - Applies graduated corrections based on severity of deviation
+4. **Comparison and Validation**:
+   - Calculates HRV metrics on both raw and cleaned data
+   - Compares different cleaning modes to show impact on metrics
+   - Visual comparison allows assessment of cleaning quality
+
+## Interpreting Results
+
+### Raw vs Cleaned Metrics
+- Cleaning should stabilize HRV metrics without drastically changing their values
+- Heart rate should remain relatively stable after cleaning
+- Excessive cleaning (too many points changed) may remove valid physiological variations
+- Insufficient cleaning may leave artifacts that distort metric values
+
+### Poincaré Plot Interpretation
+- Tight, elliptical cluster: normal sinus rhythm
+- Fanning out: increased HRV (often healthy)
+- Very tight cluster: reduced HRV (potential concern)
+- Isolated points far from cluster: likely artifacts or abnormal beats
+
+### Common Problems in HRV Data
+1. **Missed Beats**: Appear as intervals approximately twice the normal length
+2. **Extra Beats**: Create two intervals that sum to approximately one normal interval
+3. **Noisy Data**: Random, high-frequency variations that don't reflect true cardiac activity
+
+## The Relationship Between Heart Rate and HRV
+
+1. **Heart Rate vs. HRV**: While related, these measure different aspects of cardiac function:
+   - Heart Rate: Number of beats per minute
+   - HRV: Variation in time between those beats
+
+2. **Physiological Significance**:
+   - Lower heart rate often (but not always) correlates with higher HRV
+   - During exercise: HR increases while HRV typically decreases
+   - During rest: HR decreases while HRV typically increases
+
+3. **Clinical Implications**:
+   - High HR with low HRV may indicate stress or poor cardiovascular health
+   - Low HR with high HRV often indicates good cardiovascular fitness
+   - Abnormal patterns may suggest autonomic dysfunction
+
+4. **Using Both Metrics Together**:
+   - Provides more complete picture of cardiovascular health
+   - Helps distinguish between different physiological states
+   - Improves accuracy of stress and recovery assessments
+
+## Best Practices for HRV Analysis
+
+1. **Always inspect raw data** before applying cleaning algorithms
+2. **Start with conservative cleaning** and progress to more aggressive methods only if necessary
+3. **Compare metrics across cleaning modes** to ensure stability of results
+4. **Use visual tools** to validate cleaning effectiveness
+5. **Consider the context** of data collection (rest, exercise, clinical condition)
+
+## Using This Script for Your Analysis
+
+1. Load your data in the same format (one RR interval per line in ms)
+2. Select an appropriate cleaning mode based on data quality:
+   - High-quality clinical data: 'conservative'
+   - Standard recordings: 'balanced'
+   - Noisy recordings: 'aggressive'
+3. Analyze the side-by-side comparisons to verify cleaning effectiveness
+4. Use the cleaned data for further physiological interpretation
+
+Remember that HRV analysis is highly sensitive to data quality. Even a few artifacts can significantly impact results, which is why proper cleaning is essential while preserving genuine physiological variations.
